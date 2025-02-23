@@ -1,0 +1,52 @@
+exp:
+    exp_dir: /Users/vsevolodparamonov/MachineTranslator/experiments
+    checkpont_path: null
+    exp_name: some_naming
+    device: cpu
+    seed: 52
+
+train:
+    train_path_en: /Users/vsevolodparamonov/MachineTranslator/translation_dataset/train.de-en.en
+    train_path_de: /Users/vsevolodparamonov/MachineTranslator/translation_dataset/train.de-en.de
+    batch_size: 64
+    checkpoint_step: 5
+    val_step: 5
+    epoch_num: 30
+
+val:
+    val_path_en: /Users/vsevolodparamonov/MachineTranslator/translation_dataset/val.de-en.en
+    val_path_de: /Users/vsevolodparamonov/MachineTranslator/translation_dataset/val.de-en.de
+
+tokenizer:
+  model_type: unigram
+  vocab_size: 25000
+  normalization_rule_name: nmt_nfkc_cf
+  pad_id: 0
+  bos_id: 1
+  eos_id: 2
+  unk_id: 3
+
+translator:
+  encoder:
+      _target_: models.encoder.EncoderRNN
+      hidden_size: 64
+      num_layers: 2
+      dropout_p: 0.1 
+      bidirectional: True
+  decoder:
+      _target_: models.decoder.AttnDecoderRNN
+      hidden_size: 64
+      num_layers: 2
+      dropout_p: 0.1 
+  grad_clip: 5
+
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 1e-4
+  weight_decay: 0.05
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
