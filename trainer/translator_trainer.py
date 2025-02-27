@@ -2,9 +2,8 @@ from trainer.base_trainer import BaseTrainer
 from hydra.utils import instantiate
 import torch.nn as nn
 import torch
-from models.translator import Translator
+from models.seq2seq.translator import Translator
 import tqdm
-import sys
 
 
 class TranslationTrainer(BaseTrainer):
@@ -12,10 +11,14 @@ class TranslationTrainer(BaseTrainer):
     def setup_models(self):
         self.device = torch.device(self.config.exp.device)
 
-        self.encoder = instantiate(self.config.translator.encoder, dataset=self.train_dataset_de)
-        self.decoder = instantiate(self.config.translator.decoder, dataset=self.train_dataset_en, multiply=self.encoder.gru.bidirectional, device=self.device)
+        if True:
+            self.model = instantiate(self.config.translator.transformer, de_dataset=self.train_dataset_de, en_dataset=self.train_dataset_en, device=self.device)
 
-        self.model = Translator(encoder=self.encoder, decoder=self.decoder, config=self.config, device=self.device).to(self.device)
+        else:
+            self.encoder = instantiate(self.config.translator.encoder, dataset=self.train_dataset_de)
+            self.decoder = instantiate(self.config.translator.decoder, dataset=self.train_dataset_en, multiply=self.encoder.gru.bidirectional, device=self.device)
+
+            self.model = Translator(encoder=self.encoder, decoder=self.decoder, config=self.config, device=self.device).to(self.device)
 
         if self.config.exp.checkpont_path:
             self.checkpoint = torch.load(self.config.exp.checkpont_path, map_location=self.device)
@@ -39,8 +42,6 @@ class TranslationTrainer(BaseTrainer):
         
         for de, en in tqdm.tqdm(self.train_loader, desc='Train', leave=False):
             de, en = de.to(self.device), en.to(self.device)
-
-            # sys.stdout.write(f'\nBATCH: {de.shape}, {en.shape}\n')
             
             self.optimizer.zero_grad()
 
@@ -69,9 +70,9 @@ class TranslationTrainer(BaseTrainer):
             for de, en in tqdm.tqdm(self.val_loader, desc='Validation', leave=False):
                 de, en = de.to(self.device), en.to(self.device)
                     
-                pred = self.model(de)
+                pred = self.model(de)[:, :en.shape[1], :]
     
-                loss = self.loss(pred.view(-1, pred.size(-1)), en.view(-1))
+                loss = self.loss(pred.reshape(-1, pred.size(-1)), en.view(-1))
     
                 val_loss += loss.item() * de.shape[0]
 

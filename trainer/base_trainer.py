@@ -95,7 +95,6 @@ class BaseTrainer:
 
             self.logwriter._log_metrics(train_loss, i)
 
-            raise ValueError
 
     @torch.inference_mode()
     def inference(self, path, name):
