@@ -1,0 +1,4 @@
+torch==2.5.1+cu121
+sacrebleu==2.3.1
+sentencepiece==0.2.0
+hydra-core
