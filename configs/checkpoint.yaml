@@ -20,7 +20,7 @@ val:
 
 inference:
     test_path: /kaggle/working/MachineTranslator/translation_dataset/val.de-en.de
-    inference_mode: True
+    inference_mode: False
 
 tokenizer:
   model_type: bpe
