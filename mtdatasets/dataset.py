@@ -23,7 +23,7 @@ class LanguageDataset(Dataset):
     
     def _preproc_text(self, path, mode, **kwargs):
 
-        txt = [line.strip() for line in open(path, 'r', encoding='utf-8').readlines()][:100]
+        txt = [line.strip() for line in open(path, 'r', encoding='utf-8').readlines()]
         lang = os.path.splitext(path)[1][1:]
 
         if mode=='train':
