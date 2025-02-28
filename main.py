@@ -4,7 +4,7 @@ from trainer.translator_trainer import TranslationTrainer
 import torch
 import numpy as np
 
-@hydra.main(config_path="/Users/vsevolodparamonov/MachineTranslator/configs", config_name="default", version_base="1.1")
+@hydra.main(config_path="/kaggle/working/MachineTranslator/configs", config_name="default", version_base="1.1")
 def main(cfg: DictConfig):
 
     np.random.seed(cfg.exp.seed)
