@@ -4,7 +4,7 @@ from torch.utils.data import Dataset
 from sentencepiece import SentencePieceTrainer, SentencePieceProcessor
 from utils.data_utils import _clear_dir
 
-class TranslatorDataset(Dataset):
+class LanguageDataset(Dataset):
     def __init__(self, txt_path, exp_root=None, max_length=None, mode='train', **kwargs):
 
         self.max_length = max_length 
@@ -23,7 +23,7 @@ class TranslatorDataset(Dataset):
     
     def _preproc_text(self, path, mode, **kwargs):
 
-        txt = open(path).readlines()[:10000]
+        txt = [line.strip() for line in open(path, 'r', encoding='utf-8').readlines()][:100]
         lang = os.path.splitext(path)[1][1:]
 
         if mode=='train':
@@ -38,29 +38,17 @@ class TranslatorDataset(Dataset):
 
 
     def _align_seq(self, seq):
-
-        if self.max_length is not None:
-            init_len = len(seq)
-            
-            if init_len > self.max_length - 2:
-                init_len = self.max_length - 2
-                seq = seq[:self.max_length-2]
-
-            seq = [self.bos_id] + seq + [self.eos_id]
-            seq += [self.pad_id] * (self.max_length - len(seq))
-
-            return seq
-
         return [self.bos_id] + seq + [self.eos_id]
 
     def text2ids(self, texts):
-        return self.tokenizer.encode(texts)
+        return [self.bos_id] + self.tokenizer.encode(texts) + [self.eos_id]
 
     def ids2text(self, ids):
         if torch.is_tensor(ids):
             assert len(ids.shape) <= 2, 'Expected tensor of shape (length, ) or (batch_size, length)'
             ids = ids.cpu().tolist()
 
+        ids = [id for id in ids if id not in {self.bos_id, self.eos_id, self.pad_id}]
         return self.tokenizer.decode(ids)
             
     def __len__(self):
@@ -72,3 +60,30 @@ class TranslatorDataset(Dataset):
         sentence_processed =  self._align_seq(sentence)
 
         return torch.tensor(sentence_processed)
+
+
+
+class TranslatorDataset(Dataset):
+    def __init__(self, dataset_de, dataset_en, max_pair_length=None):
+        self.dataset_de = dataset_de
+        self.dataset_en = dataset_en
+        self.max_pair_length = max_pair_length
+        self.filtered_indices = self._filter_pairs_by_length()
+
+    def _filter_pairs_by_length(self):
+        filtered_indices = []
+        for i in range(len(self.dataset_de)):
+            len1 = len(self.dataset_de.indicies[i])
+            len2 = len(self.dataset_en.indicies[i])
+            if len1 <= self.max_pair_length and len2 <= self.max_pair_length:
+                filtered_indices.append(i)
+        return filtered_indices
+
+    def __len__(self):
+        return len(self.filtered_indices)
+
+    def __getitem__(self, idx):
+        true_idx = self.filtered_indices[idx]
+        sentence_de = self.dataset_de._align_seq(self.dataset_de.indicies[true_idx])
+        sentence_en = self.dataset_en._align_seq(self.dataset_en.indicies[true_idx])
+        return torch.tensor(sentence_de), torch.tensor(sentence_en)

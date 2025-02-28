@@ -4,15 +4,18 @@ import torch.nn as nn
 import torch
 from models.seq2seq.translator import Translator
 import tqdm
+import sys
 
 
 class TranslationTrainer(BaseTrainer):
 
     def setup_models(self):
-        self.device = torch.device(self.config.exp.device)
+        self.device = torch.device(self.config.exp.device)         
 
-        if True:
-            self.model = instantiate(self.config.translator.transformer, de_dataset=self.train_dataset_de, en_dataset=self.train_dataset_en, device=self.device)
+
+        if 'TranslationTransformer' in self.config.translator.transformer._target_:
+            self.model = instantiate(self.config.translator.transformer, de_dataset=self.de_train_text, en_dataset=self.en_train_text, 
+                                      device=self.device).to(self.device)
 
         else:
             self.encoder = instantiate(self.config.translator.encoder, dataset=self.train_dataset_de)
@@ -23,6 +26,8 @@ class TranslationTrainer(BaseTrainer):
         if self.config.exp.checkpont_path:
             self.checkpoint = torch.load(self.config.exp.checkpont_path, map_location=self.device)
             self.model.load_state_dict(self.checkpoint['translator_state_dict'])
+
+        self.generator = instantiate(self.config.translator.generator, device=self.device, model=self.model)
     
     def setup_optimizers(self):
         self.optimizer = instantiate(self.config.optimizer, params=self.model.parameters())
@@ -30,8 +35,14 @@ class TranslationTrainer(BaseTrainer):
         if self.config.exp.checkpont_path:
             self.optimizer.load_state_dict(self.checkpoint['optimizer_state_dict'])
 
+    def setup_schedulers(self):
+        self.scheduler = instantiate(self.config.scheduler, optimizer=self.optimizer)
+
+        if self.config.exp.checkpont_path:
+            self.scheduler.load_state_dict(self.checkpoint['scheduler_state_dict'])
+    
     def setup_losses(self):
-        self.loss = nn.CrossEntropyLoss(ignore_index=self.config.tokenizer.pad_id).to(self.device)
+        self.loss = nn.CrossEntropyLoss(ignore_index=self.config.tokenizer.pad_id, label_smoothing=0.1).to(self.device)
 
 
     def train_epoch(self):
@@ -45,17 +56,21 @@ class TranslationTrainer(BaseTrainer):
             
             self.optimizer.zero_grad()
 
-            pred = self.model(de, en)
+            pred = self.model(de, en[:, :-1])
 
-            loss = self.loss(pred.view(-1, pred.size(-1)), en.view(-1))
+            loss = self.loss(pred.reshape(-1, pred.size(-1)), en[:, 1:].reshape(-1))
 
             loss.backward()
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=self.config.translator.grad_clip)
             self.optimizer.step()
+            self.scheduler.step()
 
             train_loss += loss.item() * de.shape[0]
 
+
         train_loss /= len(self.train_loader.dataset)
+
+
 
         return {'loss_train': train_loss}
             
@@ -70,9 +85,9 @@ class TranslationTrainer(BaseTrainer):
             for de, en in tqdm.tqdm(self.val_loader, desc='Validation', leave=False):
                 de, en = de.to(self.device), en.to(self.device)
                     
-                pred = self.model(de)[:, :en.shape[1], :]
+                pred = self.model(de, en[:, :-1])[:, :en.shape[1], :]
     
-                loss = self.loss(pred.reshape(-1, pred.size(-1)), en.view(-1))
+                loss = self.loss(pred.reshape(-1, pred.size(-1)), en[:, 1:].reshape(-1))
     
                 val_loss += loss.item() * de.shape[0]
 
@@ -85,15 +100,16 @@ class TranslationTrainer(BaseTrainer):
        return self.config.example.input, self.model.inference(self.config.example.input, self.train_dataset_de, self.train_dataset_en), self.config.example.right_output
         
     @torch.inference_mode()
-    def seq_inference(self, seq):
-        return self.model.inference(seq, self.train_dataset_de, self.train_dataset_en)
+    def inference(self, seq):
+        return self.generator.generate(seq)
 
     def save_checkpoint(self):
         torch.save({
                     'translator_state_dict': self.model.state_dict(),
                     'optimizer_state_dict': self.optimizer.state_dict(),
+                    'scheduler_state_dict': self.scheduler.state_dict()
                    },
-                   f'{self.experiment_dir}/checkpoint.pth')
+                   f'{self.experiment_dir}/{self.config.exp.exp_name}_checkpoint.pth')
 
     def to_train(self):
         self.model.train()

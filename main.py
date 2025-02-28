@@ -13,8 +13,11 @@ def main(cfg: DictConfig):
     trainer = TranslationTrainer(cfg)
 
     trainer.setup()
+    
+    if not cfg.inference.inference_mode:
+        trainer.training_loop()
 
-    trainer.training_loop()
+    trainer.translate_text(cfg.inference.test_path, 'test_pred')
 
 if __name__ == "__main__":
     main()

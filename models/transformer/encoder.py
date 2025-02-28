@@ -16,7 +16,7 @@ class PositionalEncoder(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, inp):
-        return inp + self.pe[:inp.shape[1]].unsqueeze(0)
+        return inp + self.pe[:inp.shape[1]].to(inp.device).unsqueeze(0)
 
 
 class Encoder(nn.Module):
@@ -30,18 +30,18 @@ class Encoder(nn.Module):
             nn.ReLU(),
             nn.Linear(ff_dim, d))
 
-        self.norm = nn.LayerNorm(d)
+        self.norm1, self.norm2 = nn.LayerNorm(d), nn.LayerNorm(d)
         self.dropout = nn.Dropout(p)
 
     def forward(self, inp, mask=None):
         attn, _ = self.attention(inp, inp, inp, key_padding_mask=mask)
 
         inp = inp + self.dropout(attn)
-        inp = self.norm(inp)
+        inp = self.norm1(inp)
 
         ff_res = self.ff(inp)
         inp = inp + self.dropout(ff_res)
-        inp = self.norm(inp)
+        inp = self.norm2(inp)
 
         return inp
         

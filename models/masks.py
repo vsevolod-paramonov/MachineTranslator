@@ -5,7 +5,7 @@ class PaddingMask:
         self.pad_token_id = pad_token_id
 
     def __call__(self, seq):        
-        return (seq != self.pad_token_id)
+        return (seq == self.pad_token_id).float().to(device=seq.device)
 
 class LookAheadMask:
     def __init__(self):

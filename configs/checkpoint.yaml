@@ -1,0 +1,62 @@
+exp:
+    exp_dir: /kaggle/working/MachineTranslator/experiments
+    checkpont_path: null
+    exp_name: checkpoint
+    device: cuda
+    seed: 52
+
+train:
+    train_path_en: /kaggle/working/MachineTranslator/translation_dataset/train.de-en.en
+    train_path_de: /kaggle/working/MachineTranslator/translation_dataset/train.de-en.de
+    batch_size: 64
+    max_length: 64
+    checkpoint_step: 3
+    val_step: 7
+    epoch_num: 30
+
+val:
+    val_path_en: /kaggle/working/MachineTranslator/translation_dataset/val.de-en.en
+    val_path_de: /kaggle/working/MachineTranslator/translation_dataset/val.de-en.de
+
+inference:
+    test_path: /kaggle/working/MachineTranslator/translation_dataset/val.de-en.de
+    inference_mode: True
+
+tokenizer:
+  model_type: bpe
+  vocab_size: 32000
+  normalization_rule_name: nmt_nfkc_cf
+  pad_id: 0
+  bos_id: 1
+  eos_id: 2
+  unk_id: 3
+
+translator:
+  transformer:
+    _target_: models.transformer.TranslationTransformer
+    d: 256
+    num_heads: 2
+    num_layers: 2
+    ff_dim: 256
+    max_len: 100
+    p: 0.3
+  generator:
+     _target_: models.generation.BeamSearch
+     width: 3
+     max_length: 80
+  grad_clip: 1
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 3e-4
+  weight_decay: 0.05
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.StepLR
+  gamma: 0.5
+  step_size: 5
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null

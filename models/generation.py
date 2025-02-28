@@ -4,58 +4,91 @@ import torch
 
 class BeamSearch:
     def __init__(self, model, max_length, width, device):
+
         self.model = model
+        
         self.max_length = max_length
         self.width = width
         self.device = device
 
-        self.bos_id = self.model.encoder.dataset.bos_id
-        self.eos_id = self.model.encoder.dataset.eos_id
+        self.bos_id = self.model.de.bos_id
+        self.eos_id = self.model.de.eos_id
 
     @torch.inference_mode()
     def generate(self, src):
-        indices = torch.tensor(self.model.encoder.dataset.text2ids(src), device=self.device).unsqueeze(0)
-        encoder_outputs, hidden = self.model.encoder(indices)
+        indices = torch.tensor(self.model.de.text2ids(src), device=self.device).unsqueeze(0)
+        encoder_output, encoder_mask = self.model.encode(indices)
 
-        beams = [(0.0, [self.bos_id], hidden)]  
+        beams = [(0.0, [self.bos_id])]  
+        finished_beams = []
 
         for _ in range(self.max_length):
 
             candidates = []
 
-            for score, sequence, hidden in beams:
-                decoder_input = torch.tensor([[sequence[-1]]], device=self.device)
+            for score, sequence in beams:
+                decoder_input = torch.tensor(sequence, device=self.device).unsqueeze(0)
 
-                decoder_output, next_hidden, _ = self.model.decoder.forward_step(
-                    decoder_input, hidden, encoder_outputs
-                )
+                decoder_output = self.model.decode(encoder_output, encoder_mask, decoder_input)
 
-                log_probs = F.log_softmax(decoder_output, dim=-1).squeeze(0).squeeze(0)
+                decoder_output = self.model.out(decoder_output[:, -1, :])
 
-                top_k_probs, top_k_ids = log_probs.topk(self.width, dim=0)
+                log_probs = F.log_softmax(decoder_output, dim=-1)
 
-                for prob, token_id in zip(top_k_probs, top_k_ids):
+                top_k_probs, top_k_ids = log_probs.topk(self.width, dim=-1)
+
+                for prob, token_id in zip(top_k_probs.squeeze(0), top_k_ids.squeeze(0)):
                     new_score = score + prob.item()  
                     new_sequence = sequence + [token_id.item()]
-                    new_hidden = next_hidden
 
                     if token_id.item() == self.eos_id:
-                        candidates.append((new_score, new_sequence, None)) 
+                        finished_beams.append((new_score, new_sequence)) 
                     else:
-                        candidates.append((new_score, new_sequence, new_hidden))
+                        candidates.append((new_score, new_sequence))
 
             beams = sorted(candidates, key=lambda x: x[0], reverse=True)[:self.width]
 
-            unfinished = [(s, seq, h) for s, seq, h in beams if seq[-1] != self.eos_id]
-            if not unfinished:  
+            if not beams:  
                 break
 
-        best_score, best_sequence, _ = unfinished[0]
+        if finished_beams:
+            _, best_seq = max(finished_beams, key=lambda x: x[0])
+        else:
+            _, best_seq = max(beams, key=lambda x: x[0])
 
-        return self.model.decoder.dataset.ids2text(best_sequence)
+        return self.model.en.ids2text(best_seq)
 
 class GreedyDecoding:
-    def __init__(self):
-        pass
+    def __init__(self, model, max_length, device):
+        self.model = model
+        self.max_length = max_length
 
+        self.device = device
 
+    @torch.inference_mode()
+    def generate(self, src):
+        
+        indices = torch.tensor(self.model.de.text2ids(src), device=self.device).unsqueeze(0)
+        
+        encoder_output, encoder_mask = self.model.encode(indices)
+
+        decoder_input = torch.tensor([[self.model.de.bos_id]], device=self.device, dtype=torch.long)
+
+        generated_tokens = []
+
+        for _ in range(self.max_length):
+            decoder_output = self.model.decode(encoder_output, encoder_mask, decoder_input)
+
+            pred = self.model.out(decoder_output[:, -1, :])
+
+            next_token_id = self.model.out(decoder_output[:, -1, :]).argmax(dim=-1).item()
+            generated_tokens.append(next_token_id)
+
+            next_token = torch.tensor([[next_token_id]], device=self.device)
+            
+            decoder_input = torch.cat([decoder_input, next_token], dim=1)
+
+            if next_token_id == self.model.de.eos_id:
+                break
+
+        return self.model.en.ids2text(generated_tokens)
