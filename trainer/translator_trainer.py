@@ -63,9 +63,10 @@ class TranslationTrainer(BaseTrainer):
             loss.backward()
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=self.config.translator.grad_clip)
             self.optimizer.step()
-            self.scheduler.step()
 
             train_loss += loss.item() * de.shape[0]
+
+        self.scheduler.step()
 
 
         train_loss /= len(self.train_loader.dataset)
