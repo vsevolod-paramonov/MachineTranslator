@@ -63,7 +63,7 @@
 !python /MachineTranslator/main.py --config-name checkpoint
 ```
 При запуске будет с нуля запущен процесс обучения и перевод для текста <code>test1.de-en.de</code>. Если же интересует только инференс с итогового 
-чекпоинта после обучения всей модели, то необходимо выполнить следующую команду, которая запустит алгоритм <code>BeamSearch</code> для перевода:
+чекпоинта после обучения всей модели, то скачать веса по [ссылке](https://disk.yandex.ru/d/SVKlu13hjUE_Og) и выполнить следующую команду, которая запустит алгоритм <code>BeamSearch</code> для перевода:
 
 ```bash
 !python /MachineTranslator/main.py --config-name checkpoint +inference.test_path=/MachineTranslator/experiments/checkpoint/checkpoint_checkpoint.pth +inference.inference_mode=True
