@@ -1,0 +1,15 @@
+2025-02-28 20:29:03,890 - Logger - INFO - Datasets and DataLoaders are setted up!
+2025-02-28 20:29:05,690 - Logger - INFO - Models are setted up!
+2025-02-28 20:29:05,691 - Logger - INFO - Started fitting
+2025-02-28 20:43:43,705 - Logger - INFO - [Epoch 0] loss_train: 5.263431442323568, loss_val: 4.641416385323885
+2025-02-28 20:58:22,466 - Logger - INFO - [Epoch 1] loss_train: 4.434097983333376, loss_val: 4.159569499662417
+2025-02-28 21:13:00,795 - Logger - INFO - [Epoch 2] loss_train: 4.0218757381011425, loss_val: 3.9214852053068494
+2025-02-28 21:27:41,522 - Logger - INFO - [Epoch 3] loss_train: 3.777725712132061, loss_val: 3.769692057549523
+2025-02-28 21:42:19,866 - Logger - INFO - [Epoch 4] loss_train: 3.6194064389650054, loss_val: 3.6824342955991827
+2025-02-28 21:56:57,816 - Logger - INFO - [Epoch 5] loss_train: 3.4017884059821712, loss_val: 3.564721234196603
+2025-02-28 22:11:40,769 - Logger - INFO - [Epoch 6] loss_train: 3.318224265462346, loss_val: 3.5246394381803623
+2025-02-28 22:26:19,580 - Logger - INFO - Scoring val_pred file
+2025-02-28 22:46:08,979 - Logger - INFO - val_pred fiele scored, saved to /kaggle/working/MachineTranslator/experiments/checkpoint
+2025-02-28 22:46:09,328 - Logger - INFO - [Epoch 7] loss_train: 3.259967000715525, loss_val: 3.4939957314600516, BLEU_val: 27.81
+2025-02-28 23:00:50,106 - Logger - INFO - [Epoch 8] loss_train: 3.212286368294839, loss_val: 3.4710972587144533
+2025-02-28 23:15:33,817 - Logger - INFO - [Epoch 9] loss_train: 3.171209957962112, loss_val: 3.447534528433108
