@@ -3,13 +3,15 @@ import torch
 
 
 class BeamSearch:
-    def __init__(self, model, max_length, width, device):
+    def __init__(self, model, max_length, width, length_penalty, device):
 
         self.model = model
         
         self.max_length = max_length
         self.width = width
         self.device = device
+
+        self.length_penalty = length_penalty
 
         self.bos_id = self.model.de.bos_id
         self.eos_id = self.model.de.eos_id
@@ -40,6 +42,8 @@ class BeamSearch:
                 for prob, token_id in zip(top_k_probs.squeeze(0), top_k_ids.squeeze(0)):
                     new_score = score + prob.item()  
                     new_sequence = sequence + [token_id.item()]
+
+                    new_score = new_score / (len(new_sequence) ** self.length_penalty)
 
                     if token_id.item() == self.eos_id:
                         finished_beams.append((new_score, new_sequence)) 
