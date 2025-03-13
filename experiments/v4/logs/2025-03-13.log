@@ -1,0 +1,42 @@
+2025-03-13 07:40:37,310 - Logger - INFO - Datasets and DataLoaders are setted up!
+2025-03-13 07:40:41,737 - Logger - INFO - Models are setted up!
+2025-03-13 07:40:41,738 - Logger - INFO - Started fitting
+2025-03-13 07:52:45,045 - Logger - INFO - Warmup ended
+2025-03-13 07:55:18,685 - Logger - INFO - [Epoch 0] loss_train: 5.773368249061456, loss_val: 4.554103790791042
+2025-03-13 08:09:59,249 - Logger - INFO - [Epoch 1] loss_train: 4.310782207219715, loss_val: 3.943368199193933
+2025-03-13 08:24:40,164 - Logger - INFO - [Epoch 2] loss_train: 3.847445427794276, loss_val: 3.7122455071369562
+2025-03-13 08:39:22,692 - Logger - INFO - [Epoch 3] loss_train: 3.602899926531387, loss_val: 3.60456770738458
+2025-03-13 08:54:04,830 - Logger - INFO - [Epoch 4] loss_train: 3.4459364326803494, loss_val: 3.5342197615049695
+2025-03-13 09:08:47,623 - Logger - INFO - [Epoch 5] loss_train: 3.330185030841141, loss_val: 3.481527945328546
+2025-03-13 09:23:32,686 - Logger - INFO - [Epoch 6] loss_train: 3.2374130642237495, loss_val: 3.4473199908332313
+2025-03-13 09:38:15,472 - Logger - INFO - [Epoch 7] loss_train: 3.1613437163951152, loss_val: 3.3966172208973004
+2025-03-13 09:52:58,087 - Logger - INFO - [Epoch 8] loss_train: 3.0948882988132036, loss_val: 3.3831016564639853
+2025-03-13 10:07:42,850 - Logger - INFO - [Epoch 9] loss_train: 3.037129711554282, loss_val: 3.3576942626905883
+2025-03-13 10:22:25,065 - Logger - INFO - [Epoch 10] loss_train: 2.98435432303379, loss_val: 3.3372367789009654
+2025-03-13 10:37:07,247 - Logger - INFO - [Epoch 11] loss_train: 2.9357707742566177, loss_val: 3.3278907405825713
+2025-03-13 10:51:51,753 - Logger - INFO - [Epoch 12] loss_train: 2.892155446684993, loss_val: 3.3067885116896023
+2025-03-13 11:06:34,787 - Logger - INFO - [Epoch 13] loss_train: 2.848606834405307, loss_val: 3.300168275094992
+2025-03-13 11:21:17,628 - Logger - INFO - [Epoch 14] loss_train: 2.80907377813526, loss_val: 3.2821741350171982
+2025-03-13 11:36:03,396 - Logger - INFO - Scoring val_pred file
+2025-03-13 12:07:19,303 - Logger - INFO - val_pred fiele scored, saved to /kaggle/working/MachineTranslator/experiments/v4
+2025-03-13 12:07:19,631 - Logger - INFO - [Epoch 15] loss_train: 2.7710379043932063, loss_val: 3.2809842122474566, BLEU_val: 31.72
+2025-03-13 12:22:03,168 - Logger - INFO - [Epoch 16] loss_train: 2.734588090763536, loss_val: 3.2735443695902946
+2025-03-13 12:36:45,125 - Logger - INFO - [Epoch 17] loss_train: 2.700634932800169, loss_val: 3.2695812273566816
+2025-03-13 12:51:29,371 - Logger - INFO - [Epoch 18] loss_train: 2.6675808029755705, loss_val: 3.265291266397057
+2025-03-13 13:06:10,497 - Logger - INFO - [Epoch 19] loss_train: 2.636530033831544, loss_val: 3.2538725106954822
+2025-03-13 13:20:52,230 - Logger - INFO - [Epoch 20] loss_train: 2.607726534007056, loss_val: 3.2531052408326646
+2025-03-13 13:35:36,554 - Logger - INFO - [Epoch 21] loss_train: 2.5818770321100386, loss_val: 3.2526805196630204
+2025-03-13 13:50:19,732 - Logger - INFO - [Epoch 22] loss_train: 2.55692234195582, loss_val: 3.25300699294044
+2025-03-13 14:05:03,552 - Logger - INFO - [Epoch 23] loss_train: 2.5344517933042754, loss_val: 3.250517246769924
+2025-03-13 14:19:49,928 - Logger - INFO - [Epoch 24] loss_train: 2.5148244449893618, loss_val: 3.2489913855789863
+2025-03-13 14:34:32,571 - Logger - INFO - [Epoch 25] loss_train: 2.4969923098651834, loss_val: 3.2500588195119726
+2025-03-13 14:49:16,135 - Logger - INFO - [Epoch 26] loss_train: 2.4834006359509497, loss_val: 3.2453942114354657
+2025-03-13 15:04:02,112 - Logger - INFO - [Epoch 27] loss_train: 2.471995739769898, loss_val: 3.2443039311467063
+2025-03-13 15:18:44,109 - Logger - INFO - [Epoch 28] loss_train: 2.463403756518065, loss_val: 3.24414276412397
+2025-03-13 15:33:25,738 - Logger - INFO - [Epoch 29] loss_train: 2.45710990378214, loss_val: 3.243604247168983
+2025-03-13 15:48:11,035 - Logger - INFO - Scoring val_pred file
+2025-03-13 16:19:17,963 - Logger - INFO - val_pred fiele scored, saved to /kaggle/working/MachineTranslator/experiments/v4
+2025-03-13 16:19:18,210 - Logger - INFO - [Epoch 30] loss_train: 2.453937488488978, loss_val: 3.2423637589926075, BLEU_val: 32.99
+2025-03-13 16:19:18,210 - Logger - INFO - Fitting ended
+2025-03-13 16:19:18,211 - Logger - INFO - Scoring test_pred file
+2025-03-13 17:52:57,761 - Logger - INFO - test_pred fiele scored, saved to /kaggle/working/MachineTranslator/experiments/v4
