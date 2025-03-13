@@ -38,6 +38,14 @@ class TranslationTrainer(BaseTrainer):
     def setup_schedulers(self):
         self.scheduler = instantiate(self.config.scheduler, optimizer=self.optimizer)
 
+        if self.config.warmup > 0:
+            self.warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(
+                self.optimizer, 
+                lr_lambda=lambda step: min(1.0, step / self.config.warmup)
+            )
+
+            self.epoch_warmup_ended = float('inf')
+
         if self.config.exp.checkpont_path:
             self.scheduler.load_state_dict(self.checkpoint['scheduler_state_dict'])
     
@@ -51,7 +59,7 @@ class TranslationTrainer(BaseTrainer):
 
         train_loss = 0.0
         
-        for de, en in tqdm.tqdm(self.train_loader, desc='Train', leave=False):
+        for de, en in self.train_loader:
             de, en = de.to(self.device), en.to(self.device)
             
             self.optimizer.zero_grad()
@@ -64,9 +72,20 @@ class TranslationTrainer(BaseTrainer):
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=self.config.translator.grad_clip)
             self.optimizer.step()
 
+            self.config.warmup > 0
+
+            if self.config.warmup > 0 and self.iter < self.config.warmup:
+                self.warmup_scheduler.step()
+            elif self.config.warmup > 0 and self.iter-1 < self.config.warmup and self.iter >= self.config.warmup:
+                self.logwriter._log_custom_message(f'Warmup ended')
+                self.epoch_warmup_ended = self.cur_epoch
+
             train_loss += loss.item() * de.shape[0]
 
-        self.scheduler.step()
+            self.iter += 1
+
+        if self.config.warmup > 0 and self.cur_epoch > self.epoch_warmup_ended:
+            self.scheduler.step()
 
 
         train_loss /= len(self.train_loader.dataset)
@@ -83,7 +102,7 @@ class TranslationTrainer(BaseTrainer):
         val_loss = 0.0
 
         with torch.no_grad():
-            for de, en in tqdm.tqdm(self.val_loader, desc='Validation', leave=False):
+            for de, en in self.val_loader:
                 de, en = de.to(self.device), en.to(self.device)
                     
                 pred = self.model(de, en[:, :-1])[:, :en.shape[1], :]
