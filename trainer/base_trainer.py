@@ -83,8 +83,12 @@ class BaseTrainer:
         self.to_train()
 
         self.logwriter._log_custom_message('Started fitting')
+        self.iter = 0
+        self.cur_epoch = 0
 
         for i in range(self.config.train.epoch_num):
+
+            self.cur_epoch = i
             train_loss = self.train_epoch()
             val_loss = self.val_epoch()
 
