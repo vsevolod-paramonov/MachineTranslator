@@ -3,7 +3,8 @@
 
 > * ### [Структура репозитория](#struct)
 > * ### [Checkpoint](#checkpoint)
-> * ### [Итоги](#results)
+> * ### [Итоговое решение](#final)
+> * ### [Результаты](#results)
 
 <h2 name='struct'> Структура репозитория </h2>
 
@@ -66,12 +67,29 @@
 чекпоинта после обучения всей модели, то скачать веса по [ссылке](https://disk.yandex.ru/d/SVKlu13hjUE_Og) и выполнить следующую команду, которая запустит алгоритм <code>BeamSearch</code> для перевода:
 
 ```bash
-!python /MachineTranslator/main.py --config-name checkpoint +inference.test_path=/MachineTranslator/experiments/checkpoint/checkpoint_checkpoint.pth +inference.inference_mode=True
+!python /MachineTranslator/main.py --config-name checkpoint +inference.test_path="путь_для_файла_test1" exp.checkpoint_path="путь_до_весов" inference.inference_mode=True
 ```
 
 Файл, отправленный боту для чекпоинта, находится по пути <code>experiments/checkpoint/test_pred.en</code>. 
 
-<h2 name='results'>Итоги</h2>
+<h2 name='final'>Итоговое решение</h2>
+
+Конфиг с итоговым решением находится по пути <code>MachineTranslator/configs/v3_2.yaml</code>. Остальная информация, касающаяся эксперимента (токенизаторы, проскоренный тестовый файл), 
+находятся в репозитории <code>MachineTranslator/experiments/v3_2/</code>
+
+Для запуска обучения с нуля необходио выполнить следующую команду:
+
+```bash
+!python /MachineTranslator/main.py --config-name v3_2.yaml
+```
+
+Если же необходимо только перевести целевой файл, то необходимо скачать веса с соответствующим названием и выполнить следующую команду:
+
+```bash
+!python /kaggle/working/MachineTranslator/main.py --config-name v4 +exp.checkpoint_path="путь_до_весов" inference.inference_mode=True inference.test_path="путь_для_файла_test1"
+```
+
+<h2 name='results'>Результаты</h2>
 
 |    Config   |  #Epoch  | Train CELoss | Val CELoss | Time Fit | Time Inference | BLEU test | 
 |-------------|----------|--------------|------------|----------|----------------|-----------|
