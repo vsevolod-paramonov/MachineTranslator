@@ -1,6 +1,6 @@
 exp:
     exp_dir: /kaggle/working/MachineTranslator/experiments
-    checkpont_path: null
+    checkpoint_path: null
     exp_name: checkpoint
     device: cuda
     seed: 52
