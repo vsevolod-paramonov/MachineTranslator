@@ -57,6 +57,8 @@ scheduler:
   T_max: 30
   eta_min: 1e-7
 
+warmup: 0
+
 hydra:
   run:
     dir: .
