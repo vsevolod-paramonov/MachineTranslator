@@ -59,7 +59,7 @@ class TranslationTrainer(BaseTrainer):
 
         train_loss = 0.0
         
-        for de, en in self.train_loader:
+        for de, en in tqdm.tqdm(self.train_loader, desc='Train', leave=False):
             de, en = de.to(self.device), en.to(self.device)
             
             self.optimizer.zero_grad()
@@ -102,7 +102,7 @@ class TranslationTrainer(BaseTrainer):
         val_loss = 0.0
 
         with torch.no_grad():
-            for de, en in self.val_loader:
+            for de, en in tqdm.tqdm(self.val_loader, desc='Validation', leave=False):
                 de, en = de.to(self.device), en.to(self.device)
                     
                 pred = self.model(de, en[:, :-1])[:, :en.shape[1], :]
